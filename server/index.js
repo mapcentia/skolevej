@@ -1,11 +1,10 @@
 var express = require('express');
 var router = express.Router();
-var http = require('http');
 var request = require('request');
 var skolevejConfig = require('../../../config/config.js').extensionConfig.skolevej;
 
 router.post('/api/extension/findNearest', function (req, response) {
-    var sql, url, jsfile;
+    var sql, url;
     var point = req.body.p;
     var code = req.body.komkode;
 
@@ -107,7 +106,6 @@ router.post('/api/extension/findNearest', function (req, response) {
                         json.length = length;
                         json.name = points[count].properties.navn;
                         routes.push(json);
-                        //io.emit(socketId, {"count": count, "name": json.name});
                         count++;
                         iter();
 
