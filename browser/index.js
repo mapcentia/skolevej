@@ -79,6 +79,9 @@ var store;
 
 var routeLayers = [];
 
+var skolevejConfig = require('../../../config/config.js').extensionConfig.skolevej;
+
+
 module.exports = module.exports = {
 
     /**
@@ -156,14 +159,14 @@ module.exports = module.exports = {
         store = new geocloud.sqlStore({
             jsonp: false,
             method: "POST",
-            host: "https://gc2.io",
-            db: db,
-            //uri: "/api/sql",
+            host: "",
+            db: "",
+            uri: "/api/extension/schools",
             clickable: true,
             id: id,
             name: id,
             lifetime: 0,
-            sql: "SELECT * FROM fot.skoler WHERE (ST_Transform(the_geom, 25832) && ST_buffer(ST_Transform(ST_GeometryFromText('POINT(" + x + " " + y + ")', 4326), 25832), 3000))",
+            sql: x + "," + y,
             pointToLayer: function (feature, latlng) {
                 return L.marker(latlng, {
                     icon: L.AwesomeMarkers.icon({

@@ -2,24 +2,26 @@ var express = require('express');
 var router = express.Router();
 var request = require('request');
 var skolevejConfig = require('../../../config/config.js').extensionConfig.skolevej;
+var uri = (typeof skolevejConfig.host !== "undefined" ? skolevejConfig.host + "/api/v2/sql/" : "http://127.0.0.1:3000/api/sql/") + skolevejConfig.db;
 
 router.post('/api/extension/findNearest', function (req, response) {
-    var sql, url;
+    var sql, postData;
     var point = req.body.p;
     var code = req.body.komkode;
 
     sql = "SELECT * FROM " + skolevejConfig.table + " WHERE (the_geom && ST_buffer(ST_Transform(ST_GeometryFromText('POINT(" + point[0] + " " + point[1] + ")', 4326), 25832), 3000))";
 
-    url = skolevejConfig.host + "/api/v2/sql/" + skolevejConfig.db + "?q=" + encodeURIComponent(sql) + "&srs=4326";
+    postData = "q=" + encodeURIComponent(sql) + "&srs=4326";
 
     var options = {
-        uri: url,
-        encoding: 'utf8'
+        method: 'POST',
+        uri: uri,
+        form: postData
     };
 
     console.log(options);
 
-    request.get(options,
+    request.post(options,
         function (err, res, body) {
 
             if (res.statusCode !== 200) {
@@ -113,6 +115,54 @@ router.post('/api/extension/findNearest', function (req, response) {
 
                 }
             }());
+        })
+});
+
+router.post('/api/extension/schools', function (req, response) {
+    var sql, postData;
+    var point = req.body.q.split(",");
+
+    sql = "SELECT * FROM " + skolevejConfig.table + " WHERE (ST_Transform(the_geom, 25832) && ST_buffer(ST_Transform(ST_GeometryFromText('POINT(" + point[0] + " " + point[1] + ")', 4326), 25832), 3000))";
+
+    postData = "q=" + encodeURIComponent(sql) + "&srs=4326";
+
+    var options = {
+        method: 'POST',
+        uri: uri,
+        form: postData
+    };
+
+    console.log(options);
+
+    request.post(options,
+        function (err, res, body) {
+
+            if (res.statusCode !== 200) {
+                response.header('content-type', 'application/json');
+                response.status(res.statusCode).send({
+                    success: false,
+                    message: "Could not get the sql data."
+                });
+                return;
+            }
+
+            try {
+                JSON.parse(body);
+            } catch (e) {
+                response.status(500).send({
+                    success: false,
+                    message: "Could not parse JSON response",
+                    data: body
+                });
+                return;
+            }
+
+            response.header('content-type', 'application/json');
+            response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+            response.header('Expires', '0');
+            response.header('X-Powered-By', 'MapCentia Vidi');
+
+            response.send(JSON.parse(body));
         })
 });
 module.exports = router;
