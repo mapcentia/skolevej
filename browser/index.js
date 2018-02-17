@@ -166,6 +166,7 @@ module.exports = module.exports = {
             id: id,
             name: id,
             lifetime: 0,
+            base64: false,
             sql: x + "," + y,
             pointToLayer: function (feature, latlng) {
                 return L.marker(latlng, {
