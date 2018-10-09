@@ -174,7 +174,6 @@ module.exports = module.exports = {
     off: function () {
         // Clean up
         clearRoutes();
-        cloud.get().layerControl.removeLayer("_findNearestPoints");
         cleanUp();
     }
 };
