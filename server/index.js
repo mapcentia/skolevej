@@ -70,17 +70,16 @@ router.post('/api/extension/findNearest', function (req, response) {
 
                 } else {
 
-                    var sql = "SELECT seq,gid,name,heading,cost,length,geom::GEOMETRY(Linestring,25832) from pgr_fromAtoB('fot.vejmidte_brudt'," +
+                    var sql = "SELECT seq,gid,name,heading,cost,length,geom::GEOMETRY(Linestring,25832) from pgr_fromAtoB('geodk.vejmidte'," +
                         point[0] + "," +
                         point[1] + "," +
                         points[count].geometry.coordinates[0] + "," +
-                        points[count].geometry.coordinates[1] + "," +
-                        "'" + code + "'" +
+                        points[count].geometry.coordinates[1] +
                         ")",
 
                         options = {
                             method: 'POST',
-                            uri: "https://gc2.io/api/v1/sql/dk",
+                            uri: "http://127.0.0.1:8080/api/v2/sql/mydb",
                             form: "q=" + sql + "&srs=4326&lifetime=0&client_encoding=UTF8"
                         };
 
