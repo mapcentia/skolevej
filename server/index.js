@@ -10,7 +10,7 @@ router.post('/api/extension/findNearest', function (req, response) {
     var point = req.body.p;
     var code = req.body.komkode;
 
-    sql = "SELECT * FROM " + skolevejConfig.table + " WHERE komkode = '" + code + "'::int AND (the_geom && ST_buffer(ST_Transform(ST_GeometryFromText('POINT(" + point[0] + " " + point[1] + ")', 4326), 25832), " + radius + "))";
+    sql = "SELECT * FROM " + skolevejConfig.table + " WHERE komkode = '" + code + "' AND (the_geom && ST_buffer(ST_Transform(ST_GeometryFromText('POINT(" + point[0] + " " + point[1] + ")', 4326), 25832), " + radius + "))";
 
     postData = "q=" + encodeURIComponent(sql) + "&srs=4326";
 
@@ -29,7 +29,7 @@ router.post('/api/extension/findNearest', function (req, response) {
                 response.header('content-type', 'application/json');
                 response.status(res.statusCode).send({
                     success: false,
-                    message: "Could not get the sql data."
+                    message: body
                 });
                 return;
             }
@@ -70,7 +70,7 @@ router.post('/api/extension/findNearest', function (req, response) {
 
                 } else {
 
-                    var sql = "SELECT seq,gid,name,heading,cost,length,geom::GEOMETRY(Linestring,25832) from pgr_fromAtoB('geodk.vejmidte'," +
+                    var sql = "SELECT seq,gid,name,heading,cost,length,geom::GEOMETRY(Linestring,25832) from pgr_fromAtoB('skolevej.vejmidte'," +
                         point[0] + "," +
                         point[1] + "," +
                         points[count].geometry.coordinates[0] + "," +
@@ -79,7 +79,7 @@ router.post('/api/extension/findNearest', function (req, response) {
 
                         options = {
                             method: 'POST',
-                            uri: "http://127.0.0.1:8080/api/v2/sql/mydb",
+                            uri: "https://geofyn.mapcentia.com/api/v2/sql/geofyn",
                             form: "q=" + sql + "&srs=4326&lifetime=0&client_encoding=UTF8"
                         };
 
@@ -88,7 +88,7 @@ router.post('/api/extension/findNearest', function (req, response) {
                     request(options, function (err, res, body) {
 
                         if (res.statusCode != 200) {
-                            console.log(res);
+                            console.log(body);
                             response.header('content-type', 'application/json');
                             response.status(res.statusCode).send({
                                 success: false,
@@ -122,7 +122,7 @@ router.post('/api/extension/schools', function (req, response) {
     var sql, postData;
     var code = req.body.q;
 
-    sql = "SELECT * FROM " + skolevejConfig.table + " WHERE komkode = '" + code + "'::int";
+    sql = "SELECT * FROM " + skolevejConfig.table + " WHERE komkode = '" + code + "'";
 
     postData = "q=" + encodeURIComponent(sql) + "&srs=4326";
 
@@ -141,7 +141,7 @@ router.post('/api/extension/schools', function (req, response) {
                 response.header('content-type', 'application/json');
                 response.status(res.statusCode).send({
                     success: false,
-                    message: "Could not get the sql data."
+                    message: body
                 });
                 return;
             }

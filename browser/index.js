@@ -28,7 +28,7 @@ var backboneEvents;
 /**
  * @type {string}
  */
-var db = "dk";
+var db = "geofyn";
 
 /**
  *
