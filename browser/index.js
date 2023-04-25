@@ -5,6 +5,9 @@
 
 'use strict';
 
+
+const MODULE_ID = 'skolevej';
+
 /**
  *
  * @type {*|exports|module.exports}
@@ -70,7 +73,40 @@ module.exports = module.exports = {
      */
     init: function () {
 
-        var me = this;
+        const me = this;
+
+        // Listen to on event
+        backboneEvents.get().on(`on:${MODULE_ID}`, function () {
+            //findNearest.addPointLayer();
+            $("#findnearest-places").show();
+            $("#findnearest-result-panel").show();
+
+            // Turn info click off
+            backboneEvents.get().trigger("off:infoClick");
+            console.info("Starting findNearest");
+        });
+
+        backboneEvents.get().on(`off:all`, () => {
+            me.off();
+            me.removePointLayer();
+            backboneEvents.get().trigger("clear:search");
+            // Turn info click on again
+            backboneEvents.get().trigger("on:infoClick");
+            console.info("Stopping findNearest");
+        });
+
+        // Listen to process events
+        // ========================
+
+        backboneEvents.get().on("start:findNearestProcess", function () {
+            $("#findnearest-places i").show();
+            console.info("Starting findNearestProcess");
+        });
+
+        backboneEvents.get().on("stop:findNearestProcess", function () {
+            $("#findnearest-places i").hide();
+            console.info("Stopping findNearestProcess");
+        });
 
         $(document).arrive('[data-skolevej-id]', function (e, data) {
             $(this).on("change", function (e) {
@@ -80,13 +116,12 @@ module.exports = module.exports = {
             });
         });
 
-        utils.createMainTab("findnearest", "Skoleveje", "Skriv en startadresse i feltet. Trafiksikre veje til kommunens skoler kan derefter vises på kortet, ved at klikke fluebenet til på listen. Strækninger via stier bliver vist med grønt og via vej bliver vist med rødt. Bemærk, at der ikke tages højde for trafikretning. Baseret på GeoDanmark vejmidter.", require('./../../../browser/modules/height')().max, "school");
+        utils.createMainTab(MODULE_ID, "Skoleveje", "Skriv en startadresse i feltet. Trafiksikre veje til kommunens skoler kan derefter vises på kortet, ved at klikke fluebenet til på listen. Strækninger via stier bliver vist med grønt og via vej bliver vist med rødt. Bemærk, at der ikke tages højde for trafikretning. Baseret på GeoDanmark vejmidter.", require('./../../../browser/modules/height')().max, "bi bi-sign-turn-left", false, MODULE_ID);
 
         // Append to DOM
         //==============
 
-        $("#findnearest").append(dom);
-        $("#findnearest-content").css("height", "calc(100vh - 78px)");
+        $(`#${MODULE_ID}`).append(dom);
 
         // Init search with custom callback
         // ================================
@@ -99,36 +134,13 @@ module.exports = module.exports = {
         }, "findnearest-custom-search", true);
 
     },
-
-    /**
-     *
-     */
-    control: function () {
-        var me = this;
-        if ($("#findnearest-btn").is(':checked')) {
-
-            // Emit "on" event
-            //================
-
-            backboneEvents.get().trigger("on:findNearest");
-
-        } else {
-
-            store.reset();
-
-            // Emit "off" event
-            //=================
-
-            backboneEvents.get().trigger("off:findNearest");
-        }
-    },
-
     addPointLayer: function (code) {
-        var id = "_findNearestPoints";
+        const id = "_findNearestPoints";
 
         try {
             this.removePointLayer()
-        } catch(e) {}
+        } catch (e) {
+        }
 
         store = new geocloud.sqlStore({
             jsonp: false,
@@ -165,7 +177,9 @@ module.exports = module.exports = {
     },
 
     removePointLayer: function () {
-        store.reset();
+        if (store) {
+            store.reset();
+        }
     },
 
     /**
@@ -237,7 +251,7 @@ process = function (p, code) {
                 id = "_route_" + i;
                 lg.id = id;
                 routeLayers.push(cloud.get().layerControl.addOverlay(lg, id));
-                $("#findnearest-result").append('<div class="checkbox"><label class="overlay-label" style="width: calc(100% - 50px);"><input type="checkbox" id="' + id + '" data-skolevej-id="' + id + '"><span>' + response[i].name + ' (' + Math.round(response[i].length) + ' m)</span></label></div>')
+                $("#findnearest-result").append('<div class="form-check"><label class="form-check-label" style="width: calc(100% - 50px);"><input class="form-check-input" type="checkbox" id="' + id + '" data-skolevej-id="' + id + '"><span>' + response[i].name + ' (' + Math.round(response[i].length) + ' m)</span></label></div>')
             }
             console.log(routeLayers);
         },
@@ -263,18 +277,20 @@ clearRoutes = function () {
  * @type {string}
  */
 var dom =
-    '<div role="tabpanel">' +
-    '<div class="togglebutton">' +
-    '<label><input id="findnearest-btn" type="checkbox">Aktiver find skolevej</label>' +
-    '</div>' +
-    '<div id="findnearest-places" class="places" style="position: relative; margin-bottom: 20px; display: none">' +
-    '<input id="findnearest-custom-search" class="findnearest-custom-search typeahead" type="text" placeholder="Adresse">' +
-    '<i style="position:absolute;right:8px;top:10px;bottom:0;height:14px;margin:auto;font-size:24px;color:#ccc;display: none" class="fa fa-cog fa-spin fa-lg"></i>' +
-    '</div>' +
-    '<div id="findnearest-result-panel" role="tabpanel" style="display: none">' +
-    '<div style="margin-bottom: 10px">' +
-    '<span style="display: inline-block; background-color: #00ff00; width: 20px; height: 5px; margin: 2px 5px 2px 2px"></span><span>På sti</span>' +
-    '<span style="display: inline-block; background-color: #ff0000; width: 20px; height: 5px; margin: 2px 5px 2px 20px"></span><span>På vej</span>' +
-    '</div>' +
-    '<div id="findnearest-result">' +
-    '</div>';
+    `<div role="tabpanel">
+        <div id="findnearest-places" class="places" style="position: relative; margin-bottom: 20px;">
+            <input id="findnearest-custom-search" class="findnearest-custom-search custom-search typeahead form-control" type="text"
+                   placeholder="Adresse">
+                <i style="position:absolute;right:8px;top:13px;display:none"
+                   class="spinner-border spinner-border-sm text-primary"></i>
+        </div>
+        <div id="findnearest-result-panel" role="tabpanel" style="display: none">
+            <div style="margin-bottom: 10px">
+                <span
+                    style="display: inline-block; background-color: #00ff00; width: 20px; height: 5px; margin: 2px 5px 2px 2px"></span><span>På sti</span>
+                <span
+                    style="display: inline-block; background-color: #ff0000; width: 20px; height: 5px; margin: 2px 5px 2px 20px"></span><span>På vej</span>
+            </div>
+            <div id="findnearest-result">
+            </div>
+            `;
