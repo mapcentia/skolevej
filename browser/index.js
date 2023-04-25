@@ -77,10 +77,6 @@ module.exports = module.exports = {
 
         // Listen to on event
         backboneEvents.get().on(`on:${MODULE_ID}`, function () {
-            //findNearest.addPointLayer();
-            $("#findnearest-places").show();
-            $("#findnearest-result-panel").show();
-
             // Turn info click off
             backboneEvents.get().trigger("off:infoClick");
             console.info("Starting findNearest");
@@ -284,7 +280,7 @@ var dom =
                 <i style="position:absolute;right:8px;top:13px;display:none"
                    class="spinner-border spinner-border-sm text-primary"></i>
         </div>
-        <div id="findnearest-result-panel" role="tabpanel" style="display: none">
+        <div id="findnearest-result-panel" role="tabpanel">
             <div style="margin-bottom: 10px">
                 <span
                     style="display: inline-block; background-color: #00ff00; width: 20px; height: 5px; margin: 2px 5px 2px 2px"></span><span>På sti</span>
