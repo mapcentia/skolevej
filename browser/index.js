@@ -86,8 +86,6 @@ module.exports = module.exports = {
             me.off();
             me.removePointLayer();
             backboneEvents.get().trigger("clear:search");
-            // Turn info click on again
-            backboneEvents.get().trigger("on:infoClick");
             console.info("Stopping findNearest");
         });
 
