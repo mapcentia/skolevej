@@ -83,9 +83,9 @@ module.exports = module.exports = {
         });
 
         backboneEvents.get().on(`off:all`, () => {
-            me.off();
-            me.removePointLayer();
-            backboneEvents.get().trigger("clear:search");
+            // me.off();
+            // me.removePointLayer();
+            // backboneEvents.get().trigger("clear:search");
             console.info("Stopping findNearest");
         });
 
@@ -136,6 +136,11 @@ module.exports = module.exports = {
         } catch (e) {
         }
 
+        const iconOptions = {
+            icon: 'fa-graduation-cap',
+            markerColor: 'green',
+            prefix: 'fa'
+        }
         store = new geocloud.sqlStore({
             jsonp: false,
             method: "POST",
@@ -150,15 +155,13 @@ module.exports = module.exports = {
             sql: code,
             pointToLayer: function (feature, latlng) {
                 return L.marker(latlng, {
-                    icon: L.AwesomeMarkers.icon({
-                            icon: 'fa-graduation-cap',
-                            markerColor: 'green',
-                            prefix: 'fa'
-                        }
-                    )
+                    icon: L.AwesomeMarkers.icon(iconOptions)
                 });
             },
             onEachFeature: function (feature, layer) {
+                layer._vidi_type = "query_draw";
+                layer._vidi_marker = true;
+                layer._vidi_awesomemarkers = iconOptions;
                 layer.bindPopup(feature.properties['navn']);
             },
             onLoad: function () {
@@ -231,6 +234,7 @@ process = function (p, code) {
                         };
                     },
                     onEachFeature: function (feature, layer) {
+                        layer._vidi_type = "query_result";
                         layer.on({
                             mouseover: function () {
                                 console.log("HEJ")
