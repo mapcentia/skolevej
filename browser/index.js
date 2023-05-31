@@ -54,6 +54,10 @@ var store;
 
 var routeLayers = [];
 
+var selectedSchool;
+
+var skolevejConfig = require('../../../config/config.js')?.extensionConfig?.skolevej;
+
 module.exports = module.exports = {
 
     /**
@@ -120,12 +124,39 @@ module.exports = module.exports = {
         // Init search with custom callback
         // ================================
 
-        search.init(function () {
-            cloud.get().map.addLayer(this.layer);
-            me.addPointLayer(this.layer.toGeoJSON().features["0"].properties.kommunekode);
-            process(this.layer.toGeoJSON().features["0"].geometry.coordinates, this.layer.toGeoJSON().features["0"].properties.kommunekode);
+        let coords, layer;
+        const code = skolevejConfig.code;
 
-        }, "findnearest-custom-search", true);
+        const func = function () {
+            coords = this.layer.toGeoJSON().features["0"].geometry.coordinates;
+            layer = this.layer;
+            cloud.get().map.addLayer(layer);
+            me.addPointLayer(code);
+            process(coords, code);
+
+        }
+        search.init(func, "findnearest-custom-search", true);
+
+        document.getElementById("select-school").addEventListener("change", (e) => {
+            selectedSchool = e.target.value;
+            if (!layer) {
+                alert("Vælge adresse");
+                return;
+            }
+            cloud.get().map.addLayer(layer);
+            me.addPointLayer(code);
+            process(coords, code);
+        });
+        fetch("/api/extension/schools/" + code, {}).then(res => {
+            res.json().then(data => {
+                data.unshift("");
+                const el = document.getElementById("select-school");
+                data.forEach(d => el.insertAdjacentHTML("beforeend", `<option value="${d}">${d}</option>`));
+            })
+        }).catch(error => {
+            alert("Noget gik galt");
+            console.error(error);
+        });
 
     },
     addPointLayer: function (code) {
@@ -152,7 +183,7 @@ module.exports = module.exports = {
             name: id,
             lifetime: 0,
             base64: false,
-            sql: code,
+            sql: JSON.stringify([code, selectedSchool]),
             pointToLayer: function (feature, latlng) {
                 return L.marker(latlng, {
                     icon: L.AwesomeMarkers.icon(iconOptions)
@@ -165,7 +196,7 @@ module.exports = module.exports = {
                 layer.bindPopup(feature.properties['navn']);
             },
             onLoad: function () {
-                cloud.get().zoomToExtentOfgeoJsonStore(this);
+                // cloud.get().zoomToExtentOfgeoJsonStore(this);
             }
         });
         // Add the geojson layer to the layercontrol
@@ -213,7 +244,7 @@ process = function (p, code) {
     var xhr = $.ajax({
         method: "POST",
         url: "/api/extension/findNearest",
-        data: JSON.stringify({"db": db, "p": p, "komkode": code}),
+        data: JSON.stringify({"db": db, "p": p, "komkode": code, "name": selectedSchool}),
         dataType: "json",
         scriptCharset: "utf-8",
         contentType: "application/json; charset=utf-8",
@@ -249,7 +280,8 @@ process = function (p, code) {
                 id = "_route_" + i;
                 lg.id = id;
                 routeLayers.push(cloud.get().layerControl.addOverlay(lg, id));
-                $("#findnearest-result").append('<div class="form-check"><label class="form-check-label" style="width: calc(100% - 50px);"><input class="form-check-input" type="checkbox" id="' + id + '" data-skolevej-id="' + id + '"><span>' + response[i].name + ' (' + Math.round(response[i].length) + ' m)</span></label></div>')
+                switchLayer(id, true);
+                $("#findnearest-result").append('<div class="form-check"><label class="form-check-label" style="width: calc(100% - 50px);"><input class="form-check-input" type="checkbox" id="' + id + '" data-skolevej-id="' + id + '" checked><span>' + response[i].name + ' (' + Math.round(response[i].length) + ' m)</span></label></div>')
             }
             console.log(routeLayers);
         },
@@ -281,6 +313,13 @@ var dom =
                    placeholder="Adresse">
                 <i style="position:absolute;right:8px;top:13px;display:none"
                    class="spinner-border spinner-border-sm text-primary"></i>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label class="w-100">
+                Vælg skole
+                <select  class="form-select" id="select-school">
+                </select>
+            </label>
         </div>
         <div id="findnearest-result-panel" role="tabpanel">
             <div style="margin-bottom: 10px">
