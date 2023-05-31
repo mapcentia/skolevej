@@ -137,26 +137,28 @@ module.exports = module.exports = {
         }
         search.init(func, "findnearest-custom-search", true);
 
-        document.getElementById("select-school").addEventListener("change", (e) => {
-            selectedSchool = e.target.value;
-            if (!layer) {
-                alert("Vælge adresse");
-                return;
-            }
-            cloud.get().map.addLayer(layer);
-            me.addPointLayer(code);
-            process(coords, code);
-        });
-        fetch("/api/extension/schools/" + code, {}).then(res => {
-            res.json().then(data => {
-                data.unshift("");
-                const el = document.getElementById("select-school");
-                data.forEach(d => el.insertAdjacentHTML("beforeend", `<option value="${d}">${d}</option>`));
-            })
-        }).catch(error => {
-            alert("Noget gik galt");
-            console.error(error);
-        });
+        if (document.getElementById("select-school")) {
+            document.getElementById("select-school").addEventListener("change", (e) => {
+                selectedSchool = e.target.value;
+                if (!layer) {
+                    alert("Vælge adresse");
+                    return;
+                }
+                cloud.get().map.addLayer(layer);
+                me.addPointLayer(code);
+                process(coords, code);
+            });
+            fetch("/api/extension/schools/" + code, {}).then(res => {
+                res.json().then(data => {
+                    data.unshift("");
+                    const el = document.getElementById("select-school");
+                    data.forEach(d => el.insertAdjacentHTML("beforeend", `<option value="${d}">${d}</option>`));
+                })
+            }).catch(error => {
+                alert("Noget gik galt");
+                console.error(error);
+            });
+        }
 
     },
     addPointLayer: function (code) {
