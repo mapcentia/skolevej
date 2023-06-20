@@ -71,7 +71,7 @@ router.post('/api/extension/findNearest', function (req, response) {
 
                 } else {
 
-                    var sql = "SELECT seq,gid,name,heading,snerydning,cost,length,geom::GEOMETRY(Linestring,25832) from pgr_fromAtoB_test('skolevej.vejmidte'," +
+                    var sql = "SELECT seq,gid,name,heading,cost,length,geom::GEOMETRY(Linestring,25832) from pgr_fromAtoB('skolevej.vejmidte'," +
                             point[0] + "," +
                             point[1] + "," +
                             points[count].geometry.coordinates[0] + "," +
