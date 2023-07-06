@@ -259,7 +259,7 @@ process = function (p, code) {
                     style: function (feature) {
                         return {
                             color: (function getColor(d) {
-                                return d === 'Sti' ? '#00ff00' : '#ff0000';
+                                return d === 'Sti' ? '#24e1ef' : '#ef5ae3';
                             }(feature.properties.name)),
                             weight: 5,
                             dashArray: '',
