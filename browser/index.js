@@ -326,9 +326,9 @@ var dom =
         <div id="findnearest-result-panel" role="tabpanel">
             <div style="margin-bottom: 10px">
                 <span
-                    style="display: inline-block; background-color: #00ff00; width: 20px; height: 5px; margin: 2px 5px 2px 2px"></span><span>På sti</span>
+                    style="display: inline-block; background-color: #24e1ef; width: 20px; height: 5px; margin: 2px 5px 2px 2px"></span><span>På sti</span>
                 <span
-                    style="display: inline-block; background-color: #ff0000; width: 20px; height: 5px; margin: 2px 5px 2px 20px"></span><span>På vej</span>
+                    style="display: inline-block; background-color: #ef5ae3; width: 20px; height: 5px; margin: 2px 5px 2px 20px"></span><span>På vej</span>
             </div>
             <div id="findnearest-result">
             </div>
