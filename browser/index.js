@@ -135,7 +135,7 @@ module.exports = module.exports = {
             process(coords, code);
 
         }
-        search.init(func, "findnearest-custom-search", true);
+        search.init(func, ".custom-search-skolevej", true);
 
         if (document.getElementById("select-school")) {
             document.getElementById("select-school").addEventListener("change", (e) => {
@@ -311,7 +311,7 @@ clearRoutes = function () {
 var dom =
     `<div role="tabpanel">
         <div id="findnearest-places" class="places" style="position: relative; margin-bottom: 20px;">
-            <input id="findnearest-custom-search" class="findnearest-custom-search custom-search typeahead form-control" type="text"
+            <input class="custom-search-skolevej typeahead form-control" type="text"
                    placeholder="Adresse">
                 <i style="position:absolute;right:8px;top:13px;display:none"
                    class="spinner-border spinner-border-sm text-primary"></i>
